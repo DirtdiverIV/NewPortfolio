@@ -41,10 +41,36 @@
           </div>
         </div>
 
-        <!-- Nota -->
-        <p v-if="content.note" class="note">
-          Nota: {{ content.note }}
-        </p>
+        <!-- Enlaces -->
+        <div v-if="content.links" class="section">
+          <h2>Enlaces:</h2>
+          <div class="links-container">
+            <a 
+              v-for="(link, key) in content.links" 
+              :key="key"
+              :href="link.url"
+              target="_blank"
+              class="doc-link"
+            >
+              {{ link.title }}
+            </a>
+          </div>
+        </div>
+
+        <!-- Imágenes -->
+        <div v-if="content.images" class="section">
+          <h2>Imágenes:</h2>
+          <div class="images-grid">
+            <div 
+              v-for="(image, index) in content.images" 
+              :key="index"
+              class="image-container"
+            >
+              <img :src="image.url" :alt="image.description" />
+              <p class="image-caption">{{ image.description }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </template>
   </div>
@@ -142,11 +168,47 @@ li:before {
   border: 1px solid #5e3643;
 }
 
-.note {
-  margin-top: 24px;
-  padding: 12px;
+.links-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.doc-link {
   background: #472d3c;
+  padding: 8px 16px;
+  color: #f4cca1;
+  text-decoration: none;
   border: 1px solid #5e3643;
-  font-style: italic;
+}
+
+.doc-link:hover {
+  background: #5e3643;
+}
+
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.image-container {
+  border: 1px solid #5e3643;
+  padding: 8px;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.image-caption {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: #a0938e;
 }
 </style>

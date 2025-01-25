@@ -5,18 +5,20 @@
     <div class="folder-toolbar">
       <div class="view-options">
         <button 
-          class="view-btn" 
+          class="view-btn"
           :class="{ active: viewMode === 'icons' }"
           @click="viewMode = 'icons'"
+          title="Vista de iconos"
         >
-          Iconos
+          <img src="/icons/view-icons.png" alt="Vista de iconos" class="view-icon" />
         </button>
         <button 
-          class="view-btn" 
+          class="view-btn"
           :class="{ active: viewMode === 'list' }"
           @click="viewMode = 'list'"
+          title="Vista de lista"
         >
-          Lista
+          <img src="/icons/view-list.png" alt="Vista de lista" class="view-icon" />
         </button>
       </div>
       <div class="folder-path">
@@ -99,7 +101,13 @@ const folderItems = computed(() => {
               'Plataforma de juegos adultos',
               'Plataforma de juegos pedagógicos'
             ],
-            technologies: ['Angular', 'Firebase', 'Git', 'Trello', 'CDN de video', 'Android', 'iOS']
+            technologies: ['Angular', 'Firebase', 'Git', 'Trello', 'CDN de video', 'Android', 'iOS'],
+            links: {
+              company: {
+                title: 'Ver Perfil',
+                url: 'https://linkedin.com/company/freelance'
+              }
+            }
           }
         },
         { 
@@ -113,7 +121,13 @@ const folderItems = computed(() => {
             company: 'Nealia Consulting',
             period: 'Febrero 2024 - Marzo 2024',
             description: 'Desarrollo Frontend con React y React PDF',
-            note: 'Detalles omitidos por NDA'
+            note: 'Detalles omitidos por NDA',
+            links: {
+              company: {
+                title: 'Nealia Consulting',
+                url: 'https://linkedin.com/company/nealia-consulting'
+              }
+            }
           }
         },
         { 
@@ -127,7 +141,13 @@ const folderItems = computed(() => {
             company: 'Aracnosoft S.L',
             period: 'Marzo 2024 - Actualidad',
             technologies: ['Vue 3', 'Prime-Vue', 'WebScrapping', 'C#', 'Selenium', 'PostgreSQL'],
-            note: 'Detalles omitidos por NDA'
+            note: 'Detalles omitidos por NDA',
+            links: {
+              company: {
+                title: 'Aracnosoft S.L',
+                url: 'https://linkedin.com/company/aracnosoft'
+              }
+            }
           }
         }
       ]
@@ -163,7 +183,27 @@ const folderItems = computed(() => {
           content: {
             title: 'Plataforma de Streaming',
             description: 'Plataforma de retransmisión de eventos en vivo',
-            technologies: ['Angular', 'Firebase', 'Git', 'Trello', 'CDN de video']
+            technologies: ['Angular', 'Firebase', 'Git', 'Trello', 'CDN de video'],
+            images: [
+              {
+                url: '/projects/streaming1.png',
+                description: 'Panel de control de streaming'
+              },
+              {
+                url: '/projects/streaming2.png',
+                description: 'Interfaz del reproductor'
+              }
+            ],
+            links: {
+              demo: {
+                title: 'Ver Demo',
+                url: 'https://streaming-demo.davidgdev.es'
+              },
+              github: {
+                title: 'Código Fuente',
+                url: 'https://github.com/davidgdev/streaming-platform'
+              }
+            }
           }
         },
         { 
@@ -174,7 +214,31 @@ const folderItems = computed(() => {
           content: {
             title: 'Plataforma de Juegos',
             description: 'Plataforma de juegos pedagógicos multiplataforma',
-            technologies: ['Angular', 'Firebase', 'Git', 'Android', 'iOS']
+            technologies: ['Angular', 'Firebase', 'Git', 'Android', 'iOS'],
+            images: [
+              {
+                url: '/projects/games1.png',
+                description: 'Pantalla principal de juegos'
+              },
+              {
+                url: '/projects/games2.png',
+                description: 'Ejemplo de juego educativo'
+              },
+              {
+                url: '/projects/games3.png',
+                description: 'Versión móvil'
+              }
+            ],
+            links: {
+              demo: {
+                title: 'Ver Demo',
+                url: 'https://games-demo.davidgdev.es'
+              },
+              github: {
+                title: 'Código Fuente',
+                url: 'https://github.com/davidgdev/educational-games'
+              }
+            }
           }
         }
       ]
@@ -217,6 +281,7 @@ const openItem = (item) => {
   display: flex;
   flex-direction: column;
   background: #302c2e;
+  font-family: 'PixelFont', monospace;
 }
 
 .folder-toolbar {
@@ -234,11 +299,21 @@ const openItem = (item) => {
 }
 
 .view-btn {
-  padding: 4px 8px;
+  width: 24px;
+  height: 24px;
+  padding: 2px;
   background: #472d3c;
   border: 1px solid #f4cca1;
-  color: #f4cca1;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-icon {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
 }
 
 .view-btn.active {
@@ -260,6 +335,22 @@ const openItem = (item) => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 16px;
+  padding: 16px;
+}
+
+.folder-content.icons .folder-item {
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.folder-content.icons .item-info {
+  width: 90px;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .folder-content.list {

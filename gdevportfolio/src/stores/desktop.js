@@ -76,18 +76,30 @@ export const useDesktopStore = defineStore('desktop', {
           type: icon.type
         }
       }
+
+      // Calcular el z-index más alto actual
+      const maxZ = Math.max(...this.windows.map(w => w.zIndex), 0)
+      const offset = this.windows.length * 30
       
       this.windows.push({
         id: windowId,
         title: options.title,
         type: options.type,
         content: options.content,
-        position: { x: 100, y: 100 },
-        size: { width: 600, height: 400 },
+        position: { 
+          x: 100 + offset,
+          y: 100 + offset 
+        },
+        size: { 
+          width: options.type === 'document' ? 800 : 600,
+          height: options.type === 'document' ? 600 : 400 
+        },
         minimized: false,
         maximized: false,
-        zIndex: this.windows.length + 1
+        zIndex: maxZ + 1
       })
+
+      this.bringToFront(windowId)
     },
     
     closeWindow(windowId) {

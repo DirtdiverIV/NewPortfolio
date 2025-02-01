@@ -48,6 +48,7 @@
 import { computed, defineAsyncComponent } from 'vue'
 import { useDesktopStore } from '@/stores/desktop'
 import { vDrag } from '@/directives/drag'
+import { soundManager } from '@/utils/sound'
 
 const props = defineProps({
   window: {
@@ -98,8 +99,12 @@ const windowStyle = computed(() => {
 })
 
 const dragOptions = computed(() => ({
+  onDragStart: () => {
+    soundManager.playSound('/sounds/grab.wav')
+  },
   onDragEnd: (position) => {
     if (!props.window.maximized) {
+      soundManager.playSound('/sounds/drop.wav')
       store.updateWindowPosition(props.window.id, position)
     }
   },
@@ -111,20 +116,17 @@ const bringToFront = () => {
 }
 
 const minimize = () => {
-  const clickSound = new Audio('/sounds/click.wav')
-  clickSound.play()
+  soundManager.playSound('/sounds/minimize.wav')
   store.minimizeWindow(props.window.id)
 }
 
 const toggleMaximize = () => {
-  const clickSound = new Audio('/sounds/click.wav')
-  clickSound.play()
+  soundManager.playSound('/sounds/maximize.wav')
   store.toggleMaximize(props.window.id)
 }
 
 const close = () => {
-  const clickSound = new Audio('/sounds/click.wav')
-  clickSound.play()
+  soundManager.playSound('/sounds/close.wav')
   store.closeWindow(props.window.id)
 }
 </script>

@@ -10,7 +10,7 @@
           @click="viewMode = 'icons'"
           title="Vista de iconos"
         >
-          <img src="/icons/view-icons.png" alt="Vista de iconos" class="view-icon" />
+          <img src="/icons/view-icons.png" alt="Vista de iconos" />
         </button>
         <button 
           class="view-btn"
@@ -18,7 +18,7 @@
           @click="viewMode = 'list'"
           title="Vista de lista"
         >
-          <img src="/icons/view-list.png" alt="Vista de lista" class="view-icon" />
+          <img src="/icons/view-list.png" alt="Vista de lista" />
         </button>
       </div>
       <div class="folder-path">
@@ -32,9 +32,7 @@
         v-for="item in folderItems" 
         :key="item.id" 
         class="folder-item"
-        @dblclick="openItem(item)"
-        @click="selectItem(item)"
-        :class="{ selected: selectedItem?.id === item.id }"
+        @click="openItem(item)"
       >
         <img :src="getItemIcon(item)" :alt="item.title" class="item-icon" />
         <div class="item-info">
@@ -57,6 +55,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useDesktopStore } from '@/stores/desktop'
+import { config } from '@/config/data'
 
 const props = defineProps({
   windowId: {
@@ -67,7 +66,6 @@ const props = defineProps({
 
 const store = useDesktopStore()
 const viewMode = ref('icons')
-const selectedItem = ref(null)
 
 const currentPath = computed(() => {
   switch(props.windowId) {
@@ -85,163 +83,11 @@ const currentPath = computed(() => {
 const folderItems = computed(() => {
   switch(props.windowId) {
     case 'experience':
-      return [
-        { 
-          id: 'exp1', 
-          title: 'Full Stack Web Developer.doc', 
-          icon: '/icons/doc.png',
-          company: 'Freelance',
-          date: 'Oct 2023 - Feb 2024',
-          content: {
-            role: 'Full Stack Web Developer',
-            company: 'Freelance',
-            period: 'Octubre 2023 - Febrero 2024',
-            projects: [
-              'Plataforma de retransmisión de eventos en vivo',
-              'Plataforma de juegos adultos',
-              'Plataforma de juegos pedagógicos'
-            ],
-            technologies: ['Angular', 'Firebase', 'Git', 'Trello', 'CDN de video', 'Android', 'iOS'],
-            links: {
-              company: {
-                title: 'Ver Perfil',
-                url: 'https://linkedin.com/company/freelance'
-              }
-            }
-          }
-        },
-        { 
-          id: 'exp2', 
-          title: 'Frontend Developer Nealia.doc', 
-          icon: '/icons/doc.png',
-          company: 'Nealia Consulting',
-          date: 'Feb 2024 - Mar 2024',
-          content: {
-            role: 'Front-End Web Developer',
-            company: 'Nealia Consulting',
-            period: 'Febrero 2024 - Marzo 2024',
-            description: 'Desarrollo Frontend con React y React PDF',
-            note: 'Detalles omitidos por NDA',
-            links: {
-              company: {
-                title: 'Nealia Consulting',
-                url: 'https://linkedin.com/company/nealia-consulting'
-              }
-            }
-          }
-        },
-        { 
-          id: 'exp3', 
-          title: 'Frontend Developer Aracnosoft.doc', 
-          icon: '/icons/doc.png',
-          company: 'Aracnosoft S.L',
-          date: 'Mar 2024 - Actualidad',
-          content: {
-            role: 'Front-End Web Developer',
-            company: 'Aracnosoft S.L',
-            period: 'Marzo 2024 - Actualidad',
-            technologies: ['Vue 3', 'Prime-Vue', 'WebScrapping', 'C#', 'Selenium', 'PostgreSQL'],
-            note: 'Detalles omitidos por NDA',
-            links: {
-              company: {
-                title: 'Aracnosoft S.L',
-                url: 'https://linkedin.com/company/aracnosoft'
-              }
-            }
-          }
-        }
-      ]
+      return config.experience
     case 'education':
-      return [
-        { 
-          id: 'edu1', 
-          title: 'Bootcamp Full-Stack.doc', 
-          icon: '/icons/doc.png',
-          institution: 'Factoria F5',
-          date: 'Abr 2023 - Oct 2023',
-          content: {
-            program: 'Bootcamp Desarrollador Full-Stack',
-            institution: 'Factoria F5',
-            period: 'Abril 2023 - Octubre 2023',
-            duration: '850 horas',
-            technologies: [
-              'Angular', 'Springboot', 'SQL', 'API Rest', 
-              'Bootstrap', 'Jira', 'Confluence', 'Figma', 
-              'Git', 'node.js'
-            ],
-            funding: 'Financiado por NTT DATA'
-          }
-        }
-      ]
+      return config.education
     case 'projects':
-      return [
-        { 
-          id: 'proj1', 
-          title: 'Plataforma Streaming.pdf', 
-          icon: '/icons/pdf.png',
-          date: '2024',
-          content: {
-            title: 'Plataforma de Streaming',
-            description: 'Plataforma de retransmisión de eventos en vivo',
-            technologies: ['Angular', 'Firebase', 'Git', 'Trello', 'CDN de video'],
-            images: [
-              {
-                url: '/projects/streaming1.png',
-                description: 'Panel de control de streaming'
-              },
-              {
-                url: '/projects/streaming2.png',
-                description: 'Interfaz del reproductor'
-              }
-            ],
-            links: {
-              demo: {
-                title: 'Ver Demo',
-                url: 'https://streaming-demo.davidgdev.es'
-              },
-              github: {
-                title: 'Código Fuente',
-                url: 'https://github.com/davidgdev/streaming-platform'
-              }
-            }
-          }
-        },
-        { 
-          id: 'proj2', 
-          title: 'Plataforma Juegos.pdf', 
-          icon: '/icons/pdf.png',
-          date: '2023',
-          content: {
-            title: 'Plataforma de Juegos',
-            description: 'Plataforma de juegos pedagógicos multiplataforma',
-            technologies: ['Angular', 'Firebase', 'Git', 'Android', 'iOS'],
-            images: [
-              {
-                url: '/projects/games1.png',
-                description: 'Pantalla principal de juegos'
-              },
-              {
-                url: '/projects/games2.png',
-                description: 'Ejemplo de juego educativo'
-              },
-              {
-                url: '/projects/games3.png',
-                description: 'Versión móvil'
-              }
-            ],
-            links: {
-              demo: {
-                title: 'Ver Demo',
-                url: 'https://games-demo.davidgdev.es'
-              },
-              github: {
-                title: 'Código Fuente',
-                url: 'https://github.com/davidgdev/educational-games'
-              }
-            }
-          }
-        }
-      ]
+      return config.projects
     default:
       return []
   }
@@ -252,21 +98,12 @@ const getItemIcon = (item) => {
   if (item.icon) return item.icon
   
   // Si no, asignamos uno según la extensión
-  if (item.title.endsWith('.doc')) return '/icons/doc.png'
-  if (item.title.endsWith('.pdf')) return '/icons/pdf.png'
+  if (item.title.endsWith('.doc')) return config.systemIcons.document
+  if (item.title.endsWith('.pdf')) return config.systemIcons.pdf
   return '/icons/file.png'
 }
 
-const selectItem = (item) => {
-  selectedItem.value = item
-}
-
 const openItem = (item) => {
-  // Reproducir sonido de doble clic
-  const clickSound = new Audio('/sounds/double-click.wav')
-  clickSound.play()
-
-  // Crear una nueva ventana con el contenido del documento
   store.openWindow(`doc-${item.id}`, {
     title: item.title,
     type: 'document',
@@ -310,7 +147,7 @@ const openItem = (item) => {
   justify-content: center;
 }
 
-.view-icon {
+.view-btn img {
   width: 16px;
   height: 16px;
   image-rendering: pixelated;
@@ -318,6 +155,10 @@ const openItem = (item) => {
 
 .view-btn.active {
   background: #5e3643;
+}
+
+.view-btn:hover {
+  background: #7a444a;
 }
 
 .folder-path {

@@ -5,27 +5,19 @@
     <div class="profile-header">
       <div class="avatar-section">
         <div class="avatar-frame">
-          <img src="/icons/avatar.png" alt="Profile Picture" />
+          <img :src="profile.avatar" alt="Profile Picture" />
           <div class="status-dot"></div>
         </div>
         <h2 class="username">@davidgdev</h2>
-        <p class="real-name">David Gómez Díaz</p>
+        <p class="real-name">{{ profile.name }}</p>
       </div>
       
       <div class="stats-section">
-        <div class="stat-item">
-          <span class="stat-number">5+</span>
-          <span class="stat-label">Proyectos</span>
-        </div>
-        <div class="stat-separator"></div>
-        <div class="stat-item">
-          <span class="stat-number">850</span>
-          <span class="stat-label">Horas de código</span>
-        </div>
-        <div class="stat-separator"></div>
-        <div class="stat-item">
-          <span class="stat-number">3</span>
-          <span class="stat-label">Lenguajes</span>
+        <div v-for="(stat, index) in profile.stats" 
+             :key="index" 
+             class="stat-item">
+          <span class="stat-number">{{ stat.value }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
         </div>
       </div>
     </div>
@@ -33,22 +25,16 @@
     <!-- Bio y badges -->
     <div class="profile-bio">
       <div class="bio-text">
-        <p class="role">JUNIOR FULL-STACK WEB DEVELOPER</p>
-        <p>Persona de altas capacidades, buscando aprender, crecer y poner a disposición mis habilidades.</p>
+        <p class="role">{{ profile.role }}</p>
+        <p>{{ profile.bio }}</p>
       </div>
       
       <div class="profile-badges">
-        <div class="badge">
-          <span class="badge-icon">🎯</span>
-          <span>Certificado de discapacidad 33%</span>
-        </div>
-        <div class="badge">
-          <span class="badge-icon">📍</span>
-          <span>A Coruña, España</span>
-        </div>
-        <div class="badge">
-          <span class="badge-icon">🌐</span>
-          <span>www.davidgdev.es/portfolio</span>
+        <div v-for="(badge, index) in profile.badges" 
+             :key="index" 
+             class="badge">
+          <img :src="badge.icon" :alt="badge.text" class="badge-icon" />
+          <span>{{ badge.text }}</span>
         </div>
       </div>
     </div>
@@ -57,11 +43,24 @@
     <div class="skills-section">
       <h3>Habilidades Destacadas</h3>
       <div class="skills-grid">
-        <div v-for="(skill, index) in skills" 
+        <div v-for="skill in profile.skills" 
+             :key="skill.name" 
+             class="skill-box">
+          <img :src="skill.icon" :alt="skill.name" class="skill-icon" />
+          <span>{{ skill.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Galería de imágenes -->
+    <div class="gallery-section">
+      <h3>Galería</h3>
+      <div class="gallery-grid">
+        <div v-for="(image, index) in profile.gallery" 
              :key="index" 
-             class="skill-box"
-             :style="{ backgroundColor: getSkillColor(index) }">
-          {{ skill }}
+             class="gallery-item">
+          <img :src="image.image" :alt="image.description" />
+          <p class="image-caption">{{ image.description }}</p>
         </div>
       </div>
     </div>
@@ -69,28 +68,22 @@
     <!-- Footer con botones de contacto -->
     <div class="profile-footer">
       <button class="contact-btn" @click="openEmail">
-        <span class="btn-icon">✉️</span> Email
+        <img src="/icons/email.png" alt="Email" class="btn-icon" />
+        Email
       </button>
       <button class="contact-btn" @click="openLinkedIn">
-        <span class="btn-icon">💼</span> LinkedIn
+        <img src="/icons/linkedin.png" alt="LinkedIn" class="btn-icon" />
+        LinkedIn
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { config } from '@/config/data'
 
-const skills = [
-  'Angular', 'Vue', 'React', 
-  'SpringBoot', 'Laravel', 'Next.js',
-  'TypeScript', 'Java', 'SQL'
-]
-
-const getSkillColor = (index) => {
-  // Usar colores de la paleta proporcionada
-  const colors = ['#472d3c', '#5e3643', '#7a444a', '#a05b53', '#bf7958', '#eea160']
-  return colors[index % colors.length]
-}
+const profile = computed(() => config.profile)
 
 const openEmail = () => {
   window.location.href = 'mailto:davidgomez.seg@gmail.com'
@@ -109,6 +102,7 @@ const openLinkedIn = () => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow-y: auto;
 }
 
 .profile-header {
@@ -168,7 +162,6 @@ const openLinkedIn = () => {
   justify-content: center;
   align-items: center;
   gap: 24px;
-  width: 100%;
 }
 
 .stat-item {
@@ -181,16 +174,6 @@ const openLinkedIn = () => {
 .stat-number {
   color: #eea160;
   font-size: 18px;
-}
-
-.stat-label {
-  font-size: 12px;
-}
-
-.stat-separator {
-  width: 2px;
-  height: 24px;
-  background: #5e3643;
 }
 
 .profile-bio {
@@ -223,9 +206,7 @@ const openLinkedIn = () => {
 .badge-icon {
   width: 16px;
   height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  image-rendering: pixelated;
 }
 
 .skills-section {
@@ -241,16 +222,61 @@ const openLinkedIn = () => {
 
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 16px;
 }
 
 .skill-box {
   padding: 8px;
-  text-align: center;
-  border-radius: 2px;
-  font-size: 12px;
+  background: #472d3c;
   border: 1px solid #5e3643;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.skill-icon {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.gallery-section {
+  padding: 16px;
+  background: #302c2e;
+  border-radius: 4px;
+}
+
+.gallery-section h3 {
+  margin-bottom: 16px;
+  color: #eea160;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.gallery-item {
+  border: 1px solid #5e3643;
+  padding: 8px;
+  background: #472d3c;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.image-caption {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: #a0938e;
 }
 
 .profile-footer {
@@ -270,6 +296,12 @@ const openLinkedIn = () => {
   align-items: center;
   gap: 8px;
   font-family: 'PixelFont', monospace;
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
 }
 
 .contact-btn:hover {

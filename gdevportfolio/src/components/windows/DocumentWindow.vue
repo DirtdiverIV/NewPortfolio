@@ -8,6 +8,7 @@
         <div class="doc-metadata">
           <p class="company">{{ content.company || content.institution }}</p>
           <p class="period">{{ content.period }}</p>
+          <p v-if="content.duration" class="duration">{{ content.duration }}</p>
         </div>
       </div>
 
@@ -42,7 +43,7 @@
         </div>
 
         <!-- Enlaces -->
-        <div v-if="content.links" class="section">
+        <div v-if="content.links" class="section links-section">
           <h2>Enlaces:</h2>
           <div class="links-container">
             <a 
@@ -51,6 +52,7 @@
               :href="link.url"
               target="_blank"
               class="doc-link"
+              @click="handleLinkClick"
             >
               {{ link.title }}
             </a>
@@ -58,9 +60,9 @@
         </div>
 
         <!-- Imágenes -->
-        <div v-if="content.images" class="section">
+        <div v-if="content.images" class="section images-section">
           <h2>Imágenes:</h2>
-          <div class="images-grid">
+          <div class="image-grid">
             <div 
               v-for="(image, index) in content.images" 
               :key="index"
@@ -71,12 +73,28 @@
             </div>
           </div>
         </div>
+
+        <!-- Nota -->
+        <div v-if="content.note" class="note-section">
+          <p class="note">
+            {{ content.note }}
+          </p>
+        </div>
+
+        <!-- Financiación (específico para educación) -->
+        <div v-if="content.funding" class="funding-section">
+          <p class="funding">
+            {{ content.funding }}
+          </p>
+        </div>
       </div>
     </template>
   </div>
 </template>
 
 <script setup>
+import { soundManager } from '@/utils/sound'
+
 defineProps({
   windowId: {
     type: String,
@@ -87,6 +105,10 @@ defineProps({
     required: true
   }
 })
+
+const handleLinkClick = () => {
+  soundManager.playSound('/sounds/click.wav')
+}
 </script>
 
 <style scoped>
@@ -112,19 +134,14 @@ defineProps({
 
 .doc-metadata {
   color: #a0938e;
-  font-size: 14px;
 }
 
-.company, .period {
+.company, .period, .duration {
   margin: 4px 0;
 }
 
 .document-content {
   line-height: 1.6;
-}
-
-.description {
-  margin-bottom: 24px;
 }
 
 .section {
@@ -172,7 +189,6 @@ li:before {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
 }
 
 .doc-link {
@@ -181,13 +197,14 @@ li:before {
   color: #f4cca1;
   text-decoration: none;
   border: 1px solid #5e3643;
+  transition: background-color 0.2s;
 }
 
 .doc-link:hover {
   background: #5e3643;
 }
 
-.images-grid {
+.image-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
@@ -197,6 +214,7 @@ li:before {
 .image-container {
   border: 1px solid #5e3643;
   padding: 8px;
+  background: #472d3c;
 }
 
 .image-container img {
@@ -210,5 +228,25 @@ li:before {
   text-align: center;
   font-size: 12px;
   color: #a0938e;
+}
+
+.note-section {
+  margin-top: 24px;
+  padding: 12px;
+  background: #472d3c;
+  border: 1px solid #5e3643;
+}
+
+.note {
+  font-style: italic;
+  color: #a0938e;
+}
+
+.funding-section {
+  margin-top: 24px;
+  padding: 12px;
+  background: #472d3c;
+  border: 1px solid #5e3643;
+  color: #eea160;
 }
 </style>

@@ -1,10 +1,10 @@
 //src/components/TaskBar.vue
 <template>
-  <div class="taskbar">
+  <div class="taskbar pixel-font">
     <!-- Start Section -->
     <div class="start-section">
       <button 
-        class="start-button pixel-font"
+        class="start-button"
         @click="toggleStartMenu"
         :class="{ 'active': startMenuOpen }"
       >
@@ -16,7 +16,7 @@
         <div class="menu-items">
           <div v-for="icon in icons" 
                :key="icon.id"
-               class="menu-item pixel-font"
+               class="menu-item"
                @click="handleMenuClick(icon)">
             <img :src="icon.icon" :alt="icon.title" />
             <span>{{ icon.title }}</span>
@@ -30,7 +30,7 @@
       <button 
         v-for="window in windows"
         :key="window.id"
-        class="window-button pixel-font"
+        class="window-button"
         :class="{ 'active': !window.minimized }"
         @click="toggleWindow(window)"
       >
@@ -41,9 +41,9 @@
     <!-- System Tray -->
     <div class="system-tray">
       <!-- Network Status -->
-      <button class="tray-icon" @click="toggleNetworkInfo" title="Estado de red">
-        <img :src="'/icons/network.png'" alt="Red" />
-        <div v-if="showNetworkInfo" class="info-popup network-info pixel-font">
+      <button class="tray-icon" @click="toggleNetworkInfo" title="Estado del sistema">
+        <img :src="config.systemIcons.network" alt="Red" />
+        <div v-if="showNetworkInfo" class="info-popup network-info">
           <div class="info-item">
             <span>Resolución:</span> {{ networkInfo.resolution }}
           </div>
@@ -65,7 +65,7 @@
       </button>
 
       <!-- Clock -->
-      <button class="time pixel-font" @click="toggleCalendar">
+      <button class="time" @click="toggleCalendar">
         {{ currentTime }}
         <!-- Calendar Popup -->
         <div v-if="showCalendar" class="calendar-popup">
@@ -99,6 +99,8 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useDesktopStore } from '@/stores/desktop'
 import { storeToRefs } from 'pinia'
+import { config } from '@/config/data'
+import { soundManager } from '@/utils/sound'
 
 const store = useDesktopStore()
 const { windows, icons, startMenuOpen } = storeToRefs(store)
@@ -109,16 +111,17 @@ const showCalendar = ref(false)
 let timeInterval
 
 // Sound State
-const isMuted = ref(false)
-const soundIcon = computed(() => 
-  isMuted.value ? '/icons/sound-muted.png' : '/icons/sound.png'
+const soundIcon = computed(() =>
+  soundManager.isMuted() ? config.systemIcons.soundMuted : config.systemIcons.sound
 )
 
 // Network Info
 const showNetworkInfo = ref(false)
 const networkInfo = ref({
-  ip: 'Cargando...',
-  location: 'Cargando...'
+  resolution: `${window.innerWidth}x${window.innerHeight}`,
+  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  language: navigator.language,
+  platform: navigator.platform
 })
 
 // Calendar Data
@@ -127,6 +130,7 @@ const currentMonth = computed(() => {
                  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
   return months[new Date().getMonth()]
 })
+
 const currentYear = computed(() => new Date().getFullYear())
 
 const calendarDates = computed(() => {
@@ -134,13 +138,11 @@ const calendarDates = computed(() => {
   const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
   const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0)
   
-  // Ajustar para que la semana empiece en lunes (0 = lunes, 6 = domingo)
   let firstDayIndex = firstDay.getDay() - 1
   if (firstDayIndex === -1) firstDayIndex = 6
 
   const dates = []
   
-  // Días del mes anterior
   for (let i = firstDayIndex; i > 0; i--) {
     const date = new Date(firstDay)
     date.setDate(date.getDate() - i)
@@ -151,7 +153,6 @@ const calendarDates = computed(() => {
     })
   }
   
-  // Días del mes actual
   for (let i = 1; i <= lastDay.getDate(); i++) {
     dates.push({
       day: i,
@@ -163,23 +164,6 @@ const calendarDates = computed(() => {
   return dates
 })
 
-// Network Functions
-const fetchNetworkInfo = async () => {
-  try {
-    const response = await fetch('https://ip-api.com/json/')
-    const data = await response.json()
-    networkInfo.value = {
-      ip: data.query,
-      location: `${data.city}, ${data.country}`
-    }
-  } catch (error) {
-    networkInfo.value = {
-      ip: 'No disponible',
-      location: 'No disponible'
-    }
-  }
-}
-
 // Event Handlers
 const toggleCalendar = () => {
   showCalendar.value = !showCalendar.value
@@ -187,24 +171,15 @@ const toggleCalendar = () => {
 }
 
 const toggleSound = () => {
-  isMuted.value = !isMuted.value
-  // Guardar el estado en localStorage para mantenerlo entre recargas
-  localStorage.setItem('isMuted', isMuted.value.toString())
-  
-  // Modificar el contexto de audio global
-  const clickSound = new Audio('/sounds/click.wav')
-  clickSound.muted = isMuted.value
-  
-  // Guardar el estado para que otros componentes lo consulten
-  window.isSoundMuted = isMuted.value
+  soundManager.toggleMute()
+  if (!soundManager.isMuted()) {
+    soundManager.playSound('/sounds/click.wav')
+  }
 }
 
 const toggleNetworkInfo = () => {
   showNetworkInfo.value = !showNetworkInfo.value
   showCalendar.value = false
-  if (showNetworkInfo.value) {
-    fetchNetworkInfo()
-  }
 }
 
 const updateTime = () => {
@@ -261,6 +236,10 @@ const toggleWindow = (window) => {
 </script>
 
 <style scoped>
+.pixel-font {
+  font-family: 'PixelFont', monospace !important;
+}
+
 .taskbar {
   position: fixed;
   bottom: 0;
@@ -274,6 +253,55 @@ const toggleWindow = (window) => {
   padding: 0 8px;
   border-top: 2px solid #f4cca1;
   z-index: 9999;
+}
+
+.start-button {
+  padding: 4px 12px;
+  background-color: #5e3643;
+  border: 1px solid #f4cca1;
+  color: #f4cca1;
+  cursor: pointer;
+  font-family: 'PixelFont', monospace !important;
+}
+
+.start-button.active {
+  background-color: #7a444a;
+}
+
+.start-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background-color: #472d3c;
+  border: 2px solid #f4cca1;
+  padding: 8px;
+  min-width: 200px;
+  margin-bottom: 2px;
+}
+
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  gap: 8px;
+  cursor: pointer;
+  color: #f4cca1;
+}
+
+.menu-item:hover {
+  background-color: #5e3643;
+}
+
+.menu-item img {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
 }
 
 .system-tray {
@@ -305,9 +333,27 @@ const toggleWindow = (window) => {
   border: none;
   cursor: pointer;
   position: relative;
+  font-family: 'PixelFont', monospace !important;
 }
 
-/* Calendar Styles */
+.window-button {
+  padding: 4px 8px;
+  background-color: #5e3643;
+  border: 1px solid #f4cca1;
+  color: #f4cca1;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+  font-family: 'PixelFont', monospace !important;
+}
+
+.window-button.active {
+  background-color: #7a444a;
+}
+
+.info-popup,
 .calendar-popup {
   position: absolute;
   bottom: 100%;
@@ -316,14 +362,27 @@ const toggleWindow = (window) => {
   border: 2px solid #f4cca1;
   padding: 8px;
   margin-bottom: 8px;
-  min-width: 250px;
+  font-size: 12px;
+  font-family: 'PixelFont', monospace !important;
 }
 
+.info-item {
+  padding: 4px;
+  color: #f4cca1;
+  white-space: nowrap;
+}
+
+.info-item span {
+  color: #eea160;
+  margin-right: 8px;
+}
+
+/* Estilos del calendario */
 .calendar-header {
   text-align: center;
   padding: 4px;
-  border-bottom: 1px solid #5e3643;
   color: #eea160;
+  border-bottom: 1px solid #5e3643;
 }
 
 .day-names {
@@ -355,92 +414,6 @@ const toggleWindow = (window) => {
   color: #7d7071;
 }
 
-/* Network Info Popup */
-.info-popup {
-  position: absolute;
-  bottom: 100%;
-  right: 0;
-  background: #472d3c;
-  border: 2px solid #f4cca1;
-  padding: 8px;
-  margin-bottom: 8px;
-  min-width: 200px;
-}
-
-.info-item {
-  padding: 4px;
-  color: #f4cca1;
-}
-
-.info-item span {
-  color: #eea160;
-  margin-right: 8px;
-}
-.pixel-font {
-  font-family: 'PixelFont', monospace;
-}
-
-.taskbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 40px;
-  background-color: #472d3c;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 8px;
-  border-top: 2px solid #f4cca1;
-  z-index: 9999;
-}
-
-.start-section {
-  position: relative;
-}
-
-.start-button {
-  padding: 4px 12px;
-  background-color: #5e3643;
-  border: 1px solid #f4cca1;
-  color: #f4cca1;
-  cursor: pointer;
-  image-rendering: pixelated;
-}
-
-.start-button.active {
-  background-color: #7a444a;
-}
-
-.start-menu {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  background-color: #472d3c;
-  border: 2px solid #f4cca1;
-  padding: 8px;
-  min-width: 200px;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  color: #f4cca1;
-  cursor: pointer;
-  gap: 8px;
-}
-
-.menu-item:hover {
-  background-color: #5e3643;
-}
-
-.menu-item img {
-  width: 16px;
-  height: 16px;
-  image-rendering: pixelated;
-}
-
 .open-windows {
   display: flex;
   gap: 4px;
@@ -449,24 +422,7 @@ const toggleWindow = (window) => {
   overflow-x: hidden;
 }
 
-.window-button {
-  padding: 4px 8px;
-  background-color: #5e3643;
-  border: 1px solid #f4cca1;
-  color: #f4cca1;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-}
-
-.window-button.active {
-  background-color: #7a444a;
-}
-
-.time {
-  color: #f4cca1;
-  padding: 4px 8px;
+.start-section {
+  position: relative;
 }
 </style>

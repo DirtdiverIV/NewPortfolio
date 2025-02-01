@@ -1,64 +1,24 @@
 // src/stores/desktop.js
 import { defineStore } from 'pinia'
+import { config } from '@/config/data'
+import { soundManager } from '@/utils/sound'
 
 export const useDesktopStore = defineStore('desktop', {
   state: () => ({
     windows: [],
     startMenuOpen: false,
-    icons: [
-      {
-        id: 'about',
-        title: 'Sobre Mí',
-        icon: '/icons/about.png',
-        position: { x: 20, y: 20 },
-        type: 'profile'
-      },
-      {
-        id: 'experience',
-        title: 'Experiencia',
-        icon: '/icons/folder.png',
-        position: { x: 20, y: 100 },
-        type: 'folder'
-      },
-      {
-        id: 'education',
-        title: 'Formación',
-        icon: '/icons/folder.png',
-        position: { x: 20, y: 180 },
-        type: 'folder'
-      },
-      {
-        id: 'projects',
-        title: 'Proyectos',
-        icon: '/icons/folder.png',
-        position: { x: 20, y: 260 },
-        type: 'folder'
-      },
-      {
-        id: 'email',
-        title: 'Email',
-        icon: '/icons/email.png',
-        position: { x: 20, y: 340 },
-        type: 'link',
-        url: 'mailto:davidgomez.seg@gmail.com'
-      },
-      {
-        id: 'linkedin',
-        title: 'LinkedIn',
-        icon: '/icons/linkedin.png',
-        position: { x: 20, y: 420 },
-        type: 'link',
-        url: 'https://www.linkedin.com/in/tu-perfil'
-      }
-    ]
+    icons: config.desktopIcons
   }),
   
   actions: {
     toggleStartMenu() {
+      soundManager.playSound('/sounds/click.wav')
       this.startMenuOpen = !this.startMenuOpen
     },
     
     openWindow(windowId, options = {}) {
+      soundManager.playSound('/sounds/click.wav')
+      
       // Si es un icono del escritorio
       if (!options.type) {
         const icon = this.icons.find(i => i.id === windowId)
@@ -103,6 +63,7 @@ export const useDesktopStore = defineStore('desktop', {
     },
     
     closeWindow(windowId) {
+      soundManager.playSound('/sounds/click.wav')
       this.windows = this.windows.filter(w => w.id !== windowId)
     },
     
@@ -129,6 +90,7 @@ export const useDesktopStore = defineStore('desktop', {
     },
     
     toggleMaximize(windowId) {
+      soundManager.playSound('/sounds/click.wav')
       const window = this.windows.find(w => w.id === windowId)
       if (window) {
         window.maximized = !window.maximized
@@ -136,6 +98,7 @@ export const useDesktopStore = defineStore('desktop', {
     },
     
     minimizeWindow(windowId) {
+      soundManager.playSound('/sounds/click.wav')
       const window = this.windows.find(w => w.id === windowId)
       if (window) {
         window.minimized = !window.minimized

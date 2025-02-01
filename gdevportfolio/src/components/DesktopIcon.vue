@@ -1,3 +1,4 @@
+//src/components/DesktopIcon.vue
 <template>
   <div 
     class="desktop-icon" 
@@ -5,7 +6,7 @@
       left: `${icon.position.x}px`, 
       top: `${icon.position.y}px` 
     }"
-    @dblclick="handleDoubleClick"
+    @click="handleClick"
     v-drag="dragOptions"
   >
     <div class="icon-image">
@@ -19,6 +20,7 @@
 import { vDrag } from '@/directives/drag'
 import { useDesktopStore } from '@/stores/desktop'
 import { computed } from 'vue'
+import { soundManager } from '@/utils/sound'
 
 const props = defineProps({
   icon: {
@@ -30,14 +32,17 @@ const props = defineProps({
 const store = useDesktopStore()
 
 const dragOptions = computed(() => ({
+  onDragStart: () => {
+    soundManager.playSound('/sounds/grab.wav')
+  },
   onDragEnd: (position) => {
+    soundManager.playSound('/sounds/drop.wav')
     store.updateIconPosition(props.icon.id, position)
   }
 }))
 
-const handleDoubleClick = () => {
-  const clickSound = new Audio('/sounds/double-click.wav')
-  clickSound.play()
+const handleClick = () => {
+  soundManager.playSound('/sounds/click.wav')
   
   if (props.icon.type === 'link') {
     window.open(props.icon.url, '_blank')
@@ -59,6 +64,10 @@ const handleDoubleClick = () => {
   padding: 4px;
 }
 
+.desktop-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .icon-image {
   width: 32px;
   height: 32px;
@@ -77,6 +86,7 @@ const handleDoubleClick = () => {
   font-size: 12px;
   word-wrap: break-word;
   text-shadow: 1px 1px 1px #000;
+  font-family: 'PixelFont', monospace;
 }
 
 .desktop-icon:hover .icon-title {

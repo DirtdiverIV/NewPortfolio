@@ -27,6 +27,7 @@ import WindowModal from './components/WindowModal.vue'
 
 const store = useDesktopStore()
 const { icons, windows } = storeToRefs(store)
+import { soundManager } from '@/utils/sound.js'
 
 // Definimos los colores base de nuestra paleta
 const colors = {
@@ -38,10 +39,8 @@ const colors = {
 }
 
 // Audio setup
-const clickSound = new Audio('/sounds/click.wav')
-
 const handleGlobalClick = () => {
-  clickSound.play()
+  soundManager.playSound('/sounds/click.wav')
 }
 </script>
 
